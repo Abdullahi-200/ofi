@@ -1,0 +1,16 @@
+
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.env
+.env.local
+.env.example
+README.md
+Dockerfile
+.dockerignore
+*.md
+.vscode
+.replit
+replit.nix

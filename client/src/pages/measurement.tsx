@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useState, useEffect } from "react";
 import { Camera, Check, Circle, RotateCcw, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
