@@ -185,6 +185,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const orderData = insertOrderSchema.parse(req.body);
       const order = await storage.createOrder(orderData);
+      
+      // Emit real-time event for new order
+      const io = app.get("socketio");
+      if (io) {
+        io.to(`tailor-${order.tailorId}`).emit("new-order", order);
+      }
+      
       res.json(order);
     } catch (error) {
       res.status(400).json({ message: "Invalid order data", error: error instanceof Error ? error.message : error });
@@ -229,6 +236,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const { status } = req.body;
       const order = await storage.updateOrder(id, { status });
+      
+      // Emit real-time event for order status update
+      const io = app.get("socketio");
+      if (io) {
+        io.to(`order-${id}`).emit("order-status-changed", { orderId: id, status, order });
+      }
+      
       res.json(order);
     } catch (error) {
       res.status(400).json({ message: "Failed to update order status", error: error instanceof Error ? error.message : error });
@@ -253,6 +267,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(reviews);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch reviews", error: error instanceof Error ? error.message : error });
+    }
+  });
+
+  // Dashboard and analytics routes
+  app.get("/api/dashboard/stats/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      // Get user's orders count
+      const userOrders = await storage.getOrdersByUser(userId);
+      const totalOrders = userOrders.length;
+      
+      // Get user's measurements
+      const measurements = await storage.getMeasurementByUser(userId);
+      const completedMeasurements = !!measurements;
+      
+      // Mock additional stats
+      const stats = {
+        totalOrders,
+        completedMeasurements,
+        completedStyleQuiz: true,
+        activeChatThreads: 2,
+        favoriteDesigns: 8,
+        rewardPoints: 150
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch dashboard stats", error: error instanceof Error ? error.message : error });
+    }
+  });
+
+  app.get("/api/dashboard/activity/:userId/:timeframe", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const timeframe = req.params.timeframe;
+      
+      // Get recent user activity (orders, measurements, etc.)
+      const userOrders = await storage.getOrdersByUser(userId);
+      
+      // Transform orders into activity items
+      const activities = userOrders.slice(0, 5).map(order => ({
+        id: order.id,
+        type: 'order',
+        title: `Order #${order.id}`,
+        description: `Status: ${order.status}`,
+        timestamp: order.createdAt,
+        status: order.status
+      }));
+      
+      res.json(activities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch dashboard activity", error: error instanceof Error ? error.message : error });
+    }
+  });
+
+  app.get("/api/dashboard/active-orders/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const userOrders = await storage.getOrdersByUser(userId);
+      
+      // Filter active orders (not completed or cancelled)
+      const activeOrders = userOrders.filter(order => 
+        !['completed', 'cancelled'].includes(order.status)
+      );
+      
+      res.json(activeOrders);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch active orders", error: error instanceof Error ? error.message : error });
     }
   });
 

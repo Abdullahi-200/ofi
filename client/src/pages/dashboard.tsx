@@ -1,10 +1,26 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  ShoppingBag, 
+  Users, 
+  TrendingUp, 
+  Clock, 
+  Star, 
+  MessageCircle,
+  Ruler,
+  Palette,
+  Target,
+  Gift
+} from "lucide-react";
+import { Link } from "wouter";
+import { realTimeService } from "@/services/realtime";
 import { 
   Package, 
   User, 
@@ -20,7 +36,6 @@ import {
   Eye,
   ArrowRight
 } from "lucide-react";
-import { Link } from "wouter";
 import StyleRecommendationEngine from "@/components/ai/style-recommendation-engine";
 
 interface DashboardStats {
@@ -159,11 +174,11 @@ export default function Dashboard() {
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return "Just now";
     if (diffInHours === 1) return "1 hour ago";
     if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays === 1) return "1 day ago";
     return `${diffInDays} days ago`;

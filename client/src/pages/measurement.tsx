@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useState, useEffect } from "react";
 import { Camera, Check, Circle, RotateCcw, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import AdvancedARScanner from "@/components/measurement/advanced-ar-scanner";
+import { realTimeService } from "@/services/realtime";
 
 type MeasurementStep = {
   id: string;
@@ -25,9 +28,30 @@ export default function Measurement() {
     { id: "neck", name: "Neck", completed: false },
     { id: "inseam", name: "Inseam", completed: false },
   ]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
 
   const completedCount = measurements.filter(m => m.completed).length;
   const progressPercentage = (completedCount / measurements.length) * 100;
+
+  useEffect(() => {
+    realTimeService.connect();
+    
+    // Listen for measurement updates
+    const handleMeasurementUpdate = (data: any) => {
+      setMeasurements(prev => prev.map(m => 
+        m.id === data.measurementType 
+          ? { ...m, completed: true, value: data.value }
+          : m
+      ));
+    };
+
+    realTimeService.on('measurement-updated', handleMeasurementUpdate);
+
+    return () => {
+      realTimeService.off('measurement-updated', handleMeasurementUpdate);
+    };
+  }, []);
 
   const handleMeasurementComplete = (measurementData: Record<string, string>) => {
     const updatedMeasurements = measurements.map(measurement => ({
@@ -36,6 +60,34 @@ export default function Measurement() {
       value: measurementData[measurement.id] || `${Math.floor(Math.random() * 10) + 30}`
     }));
     setMeasurements(updatedMeasurements);
+    
+    // Emit real-time update
+    realTimeService.updateMeasurement({
+      userId: 1, // In real app, get from auth context
+      measurements: measurementData,
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const startRealTimeScan = async () => {
+    setIsScanning(true);
+    setScanProgress(0);
+    
+    // Simulate real-time scanning progress
+    const scanInterval = setInterval(() => {
+      setScanProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(scanInterval);
+          setIsScanning(false);
+          
+          // Complete current measurement with simulated AR value
+          const simulatedValue = Math.floor(Math.random() * 20) + 30;
+          handleSingleMeasurementComplete(`${simulatedValue} cm`);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
   };
 
   const handleSingleMeasurementComplete = (value: string) => {

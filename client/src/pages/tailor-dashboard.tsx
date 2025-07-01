@@ -1,23 +1,27 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  BarChart, 
-  Upload, 
-  Package, 
-  DollarSign, 
+  ShoppingBag, 
   Star, 
-  TrendingUp,
-  Plus,
-  Edit,
+  TrendingUp, 
+  Clock, 
+  Users,
+  MessageCircle,
+  Upload,
   Eye,
-  MessageCircle
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import { Link } from "wouter";
+import { realTimeService } from "@/services/realtime";
+import { useToast } from "@/hooks/use-toast";
 import type { TailorWithStats, OrderWithDetails } from "@shared/schema";
 
 // Mock tailor data - in a real app this would come from authentication
@@ -25,6 +29,8 @@ const mockTailorId = 1;
 
 export default function TailorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: tailorStats, isLoading: statsLoading } = useQuery<TailorWithStats>({
     queryKey: [`/api/tailors/${mockTailorId}`],
@@ -33,6 +39,31 @@ export default function TailorDashboard() {
   const { data: recentOrders, isLoading: ordersLoading } = useQuery<OrderWithDetails[]>({
     queryKey: [`/api/orders/tailor/${mockTailorId}`],
   });
+
+  useEffect(() => {
+    realTimeService.on("order_created", (order: OrderWithDetails) => {
+      queryClient.invalidateQueries([`/api/orders/tailor/${mockTailorId}`]);
+      queryClient.invalidateQueries([`/api/tailors/${mockTailorId}`]);
+      toast({
+        title: "New Order Received!",
+        description: `Order #${order.id} has been placed.`,
+      });
+    });
+
+    realTimeService.on("design_created", () => {
+      queryClient.invalidateQueries([`/api/tailors/${mockTailorId}`]);
+      toast({
+        title: "New Design Added!",
+        description: `A new design has been added to your collection.`,
+      });
+    });
+
+    return () => {
+      realTimeService.off("order_created");
+      realTimeService.off("design_created");
+    };
+  }, [queryClient, toast]);
+
 
   const formatPrice = (price: string) => {
     return `₦${parseInt(price).toLocaleString()}`;
@@ -103,7 +134,7 @@ export default function TailorDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-3xl font-bold mb-6">Tailor Dashboard</h1>
-              
+
               <div className="bg-white bg-opacity-10 rounded-xl p-6 mb-6">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>

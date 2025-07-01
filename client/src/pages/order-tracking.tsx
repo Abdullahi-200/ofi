@@ -1,21 +1,25 @@
-import { useRoute } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useParams } from "wouter";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { 
   Package, 
-  Scissors, 
   Truck, 
   CheckCircle, 
   Clock, 
-  MessageCircle,
+  MapPin,
   Phone,
+  MessageCircle,
   Star
 } from "lucide-react";
 import { Link } from "wouter";
+import { realTimeService } from "@/services/realtime";
+import { useToast } from "@/hooks/use-toast";
 
 interface OrderStatus {
   status: string;
@@ -49,8 +53,34 @@ interface OrderTracking {
 }
 
 export default function OrderTracking() {
-  const [, params] = useRoute("/order-tracking/:orderId");
-  const orderId = params?.orderId ? parseInt(params.orderId) : null;
+  const { orderId } = useParams();
+  const [selectedTimeframe, setSelectedTimeframe] = useState("week");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (orderId) {
+      realTimeService.connect();
+      realTimeService.joinOrderRoom(parseInt(orderId));
+
+      // Listen for order status updates
+      const handleStatusUpdate = (data: any) => {
+        if (data.orderId === parseInt(orderId)) {
+          toast({
+            title: "Order Status Updated",
+            description: `Your order is now ${data.status}`,
+          });
+          queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}`] });
+        }
+      };
+
+      realTimeService.on('order-status-changed', handleStatusUpdate);
+
+      return () => {
+        realTimeService.off('order-status-changed', handleStatusUpdate);
+      };
+    }
+  }, [orderId, queryClient, toast]);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ["/api/orders", orderId],
@@ -160,13 +190,13 @@ export default function OrderTracking() {
               <span>{Math.round(currentProgress)}% Complete</span>
             </div>
             <Progress value={currentProgress} className="h-2" />
-            
+
             <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6">
               {statusSteps.map((step, index) => {
                 const isCompleted = statusSteps.findIndex(s => s.key === typedOrder.status) >= index;
                 const isCurrent = step.key === typedOrder.status;
                 const Icon = step.icon;
-                
+
                 return (
                   <div
                     key={step.key}
@@ -268,7 +298,7 @@ export default function OrderTracking() {
                 <MessageCircle className="w-4 h-4 mr-2" />
                 WhatsApp Chat
               </Button>
-              
+
               <Link href={`/chat/${typedOrder.tailor.id}`}>
                 <Button variant="outline" className="w-full">
                   <MessageCircle className="w-4 h-4 mr-2" />

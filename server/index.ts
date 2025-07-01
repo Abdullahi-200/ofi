@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { Server } from "socket.io";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -38,6 +39,48 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+
+  // Set up Socket.IO for real-time features
+  const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  // Real-time event handlers
+  io.on("connection", (socket) => {
+    log(`User connected: ${socket.id}`);
+
+    // Join room for order updates
+    socket.on("join-order-room", (orderId) => {
+      socket.join(`order-${orderId}`);
+      log(`User ${socket.id} joined order room: ${orderId}`);
+    });
+
+    // Join room for tailor dashboard updates
+    socket.on("join-tailor-room", (tailorId) => {
+      socket.join(`tailor-${tailorId}`);
+      log(`User ${socket.id} joined tailor room: ${tailorId}`);
+    });
+
+    // Handle measurement updates
+    socket.on("measurement-update", (data) => {
+      socket.broadcast.emit("measurement-updated", data);
+    });
+
+    // Handle order status updates
+    socket.on("order-status-update", (data) => {
+      io.to(`order-${data.orderId}`).emit("order-status-changed", data);
+    });
+
+    socket.on("disconnect", () => {
+      log(`User disconnected: ${socket.id}`);
+    });
+  });
+
+  // Make io available to routes
+  app.set("socketio", io);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
