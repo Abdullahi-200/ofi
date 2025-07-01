@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,7 +52,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
     { id: "leg_length", label: "Leg Length", status: "pending" },
     { id: "neck", label: "Neck", status: "pending" },
   ]);
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -77,7 +76,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
         },
         audio: false
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
@@ -164,16 +163,16 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
 
   const captureFullPicture = async (): Promise<string | null> => {
     if (!videoRef.current || !canvasRef.current) return null;
-    
+
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) return null;
-    
+
     // Capture full frame
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     // Convert to blob for processing
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
@@ -189,16 +188,16 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
 
   const detectPoseRealTime = async () => {
     if (!videoRef.current || !canvasRef.current || !isScanning) return;
-    
+
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) return;
-    
+
     // Draw current video frame
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     // Simulate pose detection on current frame
     const mockLandmarks: MediaPipePoint[] = Array.from({ length: 33 }, (_, index) => ({
       x: Math.random() * canvas.width,
@@ -206,7 +205,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
       z: Math.random() * 100,
       visibility: 0.8 + Math.random() * 0.2
     }));
-    
+
     // Draw pose landmarks
     ctx.fillStyle = '#ff6b35';
     mockLandmarks.forEach((landmark, index) => {
@@ -216,47 +215,47 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
         ctx.fill();
       }
     });
-    
+
     return mockLandmarks;
   };
 
   const processRealTimeMeasurements = async () => {
     const measurementSequence = measurements.map(m => m.id);
-    
+
     for (let i = 0; i < measurementSequence.length; i++) {
       const measurementId = measurementSequence[i];
       setCurrentMeasurement(measurementId);
-      
+
       setMeasurements(prev => prev.map(m => 
         m.id === measurementId 
           ? { ...m, status: "measuring" }
           : m
       ));
-      
+
       // Capture full picture for this measurement
       const capturedImage = await captureFullPicture();
-      
+
       // Real-time pose detection over multiple frames
       let accumulatedLandmarks: MediaPipePoint[] = [];
       const sampleFrames = 30; // Analyze 30 frames for better accuracy
-      
+
       for (let frame = 0; frame < sampleFrames; frame++) {
         const landmarks = await detectPoseRealTime();
         if (landmarks) {
           accumulatedLandmarks = landmarks;
         }
-        
+
         const frameProgress = (frame / sampleFrames) * 100;
         setProgress((i / measurementSequence.length) * 100 + (frameProgress / measurementSequence.length));
-        
+
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
+
       // Calculate measurements from accumulated pose data
       const calculatedMeasurements = calculateBodyMeasurements(accumulatedLandmarks);
       const value = Math.round(calculatedMeasurements[measurementId] || (30 + Math.random() * 40));
       const confidence = 85 + Math.random() * 10; // 85-95% confidence for real camera data
-      
+
       setMeasurements(prev => prev.map(m => 
         m.id === measurementId 
           ? { 
@@ -268,14 +267,14 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
             }
           : m
       ));
-      
+
       await new Promise(resolve => setTimeout(resolve, 800));
     }
-    
+
     setIsScanning(false);
     setCurrentMeasurement(null);
     setProgress(100);
-    
+
     // Convert measurements to string format
     const finalMeasurements = measurements.reduce((acc, m) => {
       if (m.value) {
@@ -283,7 +282,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
       }
       return acc;
     }, {} as Record<string, string>);
-    
+
     setTimeout(() => {
       onMeasurementComplete(finalMeasurements);
     }, 1000);
@@ -349,13 +348,13 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
               muted
               className="w-full h-full object-cover"
             />
-            
+
             {/* Canvas for pose landmarks */}
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full pointer-events-none opacity-75"
             />
-            
+
             {/* Scanning Overlay */}
             {isScanning && (
               <>
@@ -366,7 +365,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                     <span>Analyzing {currentMeasurement?.replace('_', ' ')}...</span>
                   </div>
                 </div>
-                
+
                 {/* Pose guidelines */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="border-2 border-white/50 border-dashed rounded-lg w-48 h-72">
@@ -380,7 +379,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                 </div>
               </>
             )}
-            
+
             {/* Initialization status */}
             {!isInitialized && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/70">
@@ -390,7 +389,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                 </div>
               </div>
             )}
-            
+
             {/* Progress Bar */}
             {isScanning && (
               <div className="absolute bottom-4 left-4 right-4">
@@ -401,7 +400,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
               </div>
             )}
           </div>
-          
+
           {/* Controls */}
           <div className="flex justify-center space-x-4 mt-4">
             {!isScanning ? (
@@ -450,7 +449,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                   }`} />
                   <span className="font-medium">{measurement.label}</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   {measurement.status === "complete" && measurement.value && (
                     <>
@@ -466,7 +465,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                       )}
                     </>
                   )}
-                  
+
                   {measurement.status === "measuring" && (
                     <div className="flex items-center space-x-1">
                       <div className="w-1 h-1 bg-ofi-orange rounded-full animate-bounce" />
@@ -474,11 +473,11 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
                       <div className="w-1 h-1 bg-ofi-orange rounded-full animate-bounce" style={{animationDelay: '0.2s'}} />
                     </div>
                   )}
-                  
+
                   {measurement.status === "complete" && (
                     <Check className="w-4 h-4 text-green-500" />
                   )}
-                  
+
                   {measurement.status === "error" && (
                     <AlertCircle className="w-4 h-4 text-red-500" />
                   )}
@@ -486,7 +485,7 @@ export default function MediaPipeScanner({ onMeasurementComplete }: MediaPipeSca
               </div>
             ))}
           </div>
-          
+
           {progress === 100 && !isScanning && (
             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center space-x-2 text-green-800">

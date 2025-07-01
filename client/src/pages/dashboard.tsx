@@ -17,25 +17,19 @@ import {
   Ruler,
   Palette,
   Target,
-  Gift
-} from "lucide-react";
-import { Link } from "wouter";
-import { realTimeService } from "@/services/realtime";
-import { 
+  Gift,
   Package, 
   User, 
   Calendar,
-  TrendingUp,
-  MessageCircle,
   Scissors,
-  Star,
-  Clock,
   CheckCircle,
   Truck,
   Heart,
   Eye,
   ArrowRight
 } from "lucide-react";
+import { Link } from "wouter";
+import { realTimeService } from "@/services/realtime";
 import StyleRecommendationEngine from "@/components/ai/style-recommendation-engine";
 
 interface DashboardStats {
