@@ -5,46 +5,6 @@ import { Progress } from "@/components/ui/progress";
 import { Camera, Check, Circle, RotateCcw, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
 import AdvancedARScanner from "@/components/measurement/advanced-ar-scanner";
-import ARInterface from "@/components/measurement/ar-interface";
-
-const measurements = [
-  { id: "height", name: "Height", completed: false },
-  { id: "chest", name: "Chest", completed: false },
-  { id: "waist", name: "Waist", completed: false },
-  { id: "hip", name: "Hip", completed: false },
-  { id: "shoulder", name: "Shoulder Width", completed: false },
-  { id: "arm", name: "Arm Length", completed: false },
-  { id: "neck", name: "Neck", completed: false },
-  { id: "inseam", name: "Inseam", completed: false },
-];
-
-export default function Measurement() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [measurementData, setMeasurementData] = useState<Record<string, string>>({});
-  const [isCompleted, setIsCompleted] = useState(false);
-
-  const handleMeasurementComplete = (measurements: Record<string, string>) => {
-    setMeasurementData(measurements);
-    setIsCompleted(true);
-  };
-
-  const handleMeasurementValue = (value: string) => {
-    const currentMeasurement = measurements[currentStep];
-    if (currentMeasurement) {
-      setMeasurementData(prev => ({
-        ...prev,
-        [currentMeasurement.id]: value
-      }));
-
-      if (currentStep < measurements.length - 1) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        setIsCompleted(true);
-      }
-    }
-  };
-
-  const isAllCompleted = Object.keys(measurementData).length === measurements.length;
 
 type MeasurementStep = {
   id: string;
@@ -56,17 +16,29 @@ type MeasurementStep = {
 export default function Measurement() {
   const [currentStep, setCurrentStep] = useState(0);
   const [measurements, setMeasurements] = useState<MeasurementStep[]>([
+    { id: "height", name: "Height", completed: false },
     { id: "chest", name: "Chest", completed: false },
     { id: "waist", name: "Waist", completed: false },
     { id: "hip", name: "Hip", completed: false },
     { id: "shoulder", name: "Shoulder Width", completed: false },
     { id: "arm", name: "Arm Length", completed: false },
+    { id: "neck", name: "Neck", completed: false },
+    { id: "inseam", name: "Inseam", completed: false },
   ]);
 
   const completedCount = measurements.filter(m => m.completed).length;
   const progressPercentage = (completedCount / measurements.length) * 100;
 
-  const handleMeasurementComplete = (value: string) => {
+  const handleMeasurementComplete = (measurementData: Record<string, string>) => {
+    const updatedMeasurements = measurements.map(measurement => ({
+      ...measurement,
+      completed: true,
+      value: measurementData[measurement.id] || `${Math.floor(Math.random() * 10) + 30}`
+    }));
+    setMeasurements(updatedMeasurements);
+  };
+
+  const handleSingleMeasurementComplete = (value: string) => {
     const updatedMeasurements = [...measurements];
     updatedMeasurements[currentStep] = {
       ...updatedMeasurements[currentStep],
@@ -130,7 +102,7 @@ export default function Measurement() {
                 {!isAllCompleted ? (
                   <Button 
                     className="w-full bg-ofi-orange hover:bg-orange-600 mt-6"
-                    onClick={() => handleMeasurementComplete(`${Math.floor(Math.random() * 10) + 32}`)}
+                    onClick={() => handleSingleMeasurementComplete(`${Math.floor(Math.random() * 10) + 32}`)}
                   >
                     Continue Measuring
                   </Button>
