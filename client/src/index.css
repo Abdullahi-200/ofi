@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(21, 93%, 43%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Ofi brand colors */
+  --ofi-orange: hsl(21, 93%, 43%);
+  --ofi-green: hsl(120, 25%, 26%);
+  --ofi-gold: hsl(42, 89%, 55%);
+  --ofi-cream: hsl(0, 0%, 98%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(21, 93%, 43%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Custom utility classes for Ofi brand */
+.bg-ofi-orange {
+  background-color: hsl(21, 93%, 43%);
+}
+
+.text-ofi-orange {
+  color: hsl(21, 93%, 43%);
+}
+
+.bg-ofi-green {
+  background-color: hsl(120, 25%, 26%);
+}
+
+.text-ofi-green {
+  color: hsl(120, 25%, 26%);
+}
+
+.bg-ofi-gold {
+  background-color: hsl(42, 89%, 55%);
+}
+
+.text-ofi-gold {
+  color: hsl(42, 89%, 55%);
+}
+
+.bg-ofi-cream {
+  background-color: hsl(0, 0%, 98%);
+}
+
+.text-ofi-cream {
+  color: hsl(0, 0%, 98%);
+}
+
+/* Gradient backgrounds */
+.gradient-hero {
+  background: linear-gradient(135deg, hsl(21, 93%, 43%), hsl(42, 89%, 55%), hsl(45, 100%, 51%));
+}
+
+.gradient-tailor {
+  background: linear-gradient(135deg, hsl(120, 25%, 26%), hsl(120, 30%, 35%));
+}
