@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Camera, Check, Circle, RotateCcw, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import AdvancedARScanner from "@/components/measurement/advanced-ar-scanner";
+import MediaPipeScanner from "@/components/measurement/mediapipe-scanner";
 import { realTimeService } from "@/services/realtime";
 
 type MeasurementStep = {
@@ -206,11 +205,10 @@ export default function Measurement() {
             </Card>
           </div>
 
-          {/* AR Interface */}
+          {/* AI Camera Interface */}
           <div>
-            <AdvancedARScanner 
+            <MediaPipeScanner 
               onMeasurementComplete={handleMeasurementComplete}
-              currentStep={measurements[currentStep]?.id || "complete"}
             />
           </div>
         </div>
