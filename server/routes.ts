@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { registerPaymentRoutes } from "./payment-routes";
 import {
   insertUserSchema,
   insertTailorSchema,
@@ -254,6 +255,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch reviews", error: error instanceof Error ? error.message : error });
     }
   });
+
+  // Register payment routes
+  registerPaymentRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

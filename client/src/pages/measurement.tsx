@@ -35,7 +35,7 @@ export default function Measurement() {
         ...prev,
         [currentMeasurement.id]: value
       }));
-      
+
       if (currentStep < measurements.length - 1) {
         setCurrentStep(currentStep + 1);
       } else {
