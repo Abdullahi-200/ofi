@@ -9,9 +9,10 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/" },
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Measure", href: "/measurement" },
     { name: "Marketplace", href: "/marketplace" },
-    { name: "Tailors", href: "/tailor-dashboard" },
+    { name: "Chat", href: "/chat" },
   ];
 
   return (
@@ -31,15 +32,15 @@ export default function Header() {
             <div className="ml-10 flex items-baseline space-x-4">
               {navigation.map((item) => (
                 <Link key={item.name} href={item.href}>
-                  <a
-                    className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  <span
+                    className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-ofi-orange"
                         : "text-gray-600 hover:text-ofi-orange"
                     }`}
                   >
                     {item.name}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </div>
@@ -77,8 +78,8 @@ export default function Header() {
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
               {navigation.map((item) => (
                 <Link key={item.name} href={item.href}>
-                  <a
-                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                  <span
+                    className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-ofi-orange"
                         : "text-gray-600 hover:text-ofi-orange"
@@ -86,7 +87,7 @@ export default function Header() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
-                  </a>
+                  </span>
                 </Link>
               ))}
               <div className="flex space-x-2 pt-4">

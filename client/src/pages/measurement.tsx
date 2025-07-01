@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Camera, Check, Circle, RotateCcw, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
-import ARInterface from "@/components/measurement/ar-interface";
+import AdvancedARScanner from "@/components/measurement/advanced-ar-scanner";
 
 type MeasurementStep = {
   id: string;

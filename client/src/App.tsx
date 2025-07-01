@@ -12,6 +12,9 @@ import DesignDetails from "@/pages/design-details";
 import Order from "@/pages/order";
 import Profile from "@/pages/profile";
 import TailorDashboard from "@/pages/tailor-dashboard";
+import Chat from "@/pages/chat";
+import Dashboard from "@/pages/dashboard";
+import OrderTracking from "@/pages/order-tracking";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -29,6 +32,9 @@ function Router() {
           <Route path="/order/:id" component={Order} />
           <Route path="/profile" component={Profile} />
           <Route path="/tailor-dashboard" component={TailorDashboard} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/chat/:participantId?" component={Chat} />
+          <Route path="/order-tracking/:orderId" component={OrderTracking} />
           <Route component={NotFound} />
         </Switch>
       </main>

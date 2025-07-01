@@ -207,7 +207,13 @@ export class MemStorage implements IStorage {
 
   async createUser(user: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const newUser: User = { ...user, id, createdAt: new Date() };
+    const newUser: User = { 
+      ...user, 
+      id, 
+      createdAt: new Date(),
+      address: user.address || null,
+      phone: user.phone || null
+    };
     this.users.set(id, newUser);
     return newUser;
   }
@@ -234,6 +240,8 @@ export class MemStorage implements IStorage {
     const newTailor: Tailor = {
       ...tailor,
       id,
+      description: tailor.description || null,
+      profileImage: tailor.profileImage || null,
       rating: "0",
       totalReviews: 0,
       totalOrders: 0,
